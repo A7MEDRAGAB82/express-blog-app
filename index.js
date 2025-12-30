@@ -80,6 +80,23 @@ app.get('/auth/get-user-profile/:id', (req,res)=>{
 
 })
 
+app.post('/blogs/add-blog' , (req,res)=>{
+     let {title , content , userId} = req.body
+
+     Connection.query(`INSERT INTO blogs (title , content, userId) values('${title}' , '${content}','${userId}')`,(err,result)=>{
+          if(err) {
+            console.log(err);
+            res.json({message: "internal server error"})
+            return 
+          }
+          else if(result.affectedRows>0){
+              res.json({message: "blog added successfully"})
+          } else {
+            res.json({message: "failed to add blog"})
+          }
+      })
+})
+
 app.listen(port, () =>
   console.log("Example app listening at http://localhost:3000")
 );
