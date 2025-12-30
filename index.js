@@ -61,6 +61,25 @@ app.post('/auth/login', (req,res)=>{
 
 })
 
+app.get('/auth/get-user-profile/:id', (req,res)=>{
+     let {id} = req.params
+
+     Connection.query(`SELECT name , email , id from users WHERE id = '${id}'`,(err,result)=>{
+        if(err){
+          console.log(err);
+          res.json({message: "internal server error"})
+          return
+        }
+        else if (result.length > 0) {
+           res.json({message: "user profile fetched successfully",result})
+        }
+        else {
+          res.json({message: "user not found"})
+        }
+  } )
+
+})
+
 app.listen(port, () =>
   console.log("Example app listening at http://localhost:3000")
 );
