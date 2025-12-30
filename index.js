@@ -96,15 +96,57 @@ app.post("/blogs/add-blog", (req, res) => {
 });
 
 app.get("/blogs/get-all-blogs", (req, res) => {
-  Connection.query(`SELECT * from blogs b INNER JOIN users u ON b.userId = u.id`, (err, result) => {
-    if (err) {
-      console.log(err);
-      res.json({ message: "internal server error" });
-      return;
-    } else {
-      res.json({message:"blogs fetched successfully", result});
+  Connection.query(
+    `SELECT * from blogs b INNER JOIN users u ON b.userId = u.id`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.json({ message: "internal server error" });
+        return;
+      } else {
+        res.json({ message: "blogs fetched successfully", result });
+      }
     }
-  });
+  );
+});
+
+app.get("/blogs/get-user-blogs/:userId", (req, res) => {
+  let { userId } = req.params;
+
+  Connection.query(
+    `SELECT title,content from blogs WHERE userId = '${userId}'`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.json({ message: "internal server error" });
+        return;
+      } else if (result.length > 0) {
+        res.json({ message: "user blogs fetched successfully", result });
+      } else {
+        res.json({ message: "no blogs found for this user" });
+      }
+    }
+  );
+});
+
+app.patch("/blogs/update-blog/:blogId", (req, res) => {
+  let { blogId } = req.params;
+  let { title, content } = req.body;
+
+  Connection.query(
+    `UPDATE blogs SET title = '${title}', content = '${content}' WHERE id = '${blogId}'`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.json({ message: "internal server error" });
+        return;
+      } else if (result.length > 0) {
+        res.json({ message: "blog updated successfully", result });
+      } else {
+        res.json({ message: "blog update failed" });
+      }
+    }
+  );
 });
 
 app.listen(port, () =>
