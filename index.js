@@ -29,73 +29,83 @@ app.post("/auth/signup", (req, res) => {
     (err, result) => {
       if (err) {
         console.log(err);
-      }
-      else if (result.affectedRows > 0) {
-        res.json({message: "user registered successfully"})
-      }
-      else {
-        res.status(500).json({message: "user registiration failed"})
+      } else if (result.affectedRows > 0) {
+        res.json({ message: "user registered successfully" });
+      } else {
+        res.status(500).json({ message: "user registiration failed" });
       }
     }
   );
 });
 
-app.post('/auth/login', (req,res)=>{
-  let {email , password} = req.body;
+app.post("/auth/login", (req, res) => {
+  let { email, password } = req.body;
 
-  Connection.query(`SELECT * from users WHERE email = '${email}' and password = '${password}'`,(err,result)=>{
-        if(err){
-          console.log(err);
-          res.json({message: "internal server error"})
-          return
-        }
-        else if (result.length > 0) {
-           res.json({message: " login successfully",result})
-       
-        }
-        else {
-          res.json({message: "invalid credintials"})
-        }
-  } )
+  Connection.query(
+    `SELECT * from users WHERE email = '${email}' and password = '${password}'`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.json({ message: "internal server error" });
+        return;
+      } else if (result.length > 0) {
+        res.json({ message: " login successfully", result });
+      } else {
+        res.json({ message: "invalid credintials" });
+      }
+    }
+  );
+});
 
+app.get("/auth/get-user-profile/:id", (req, res) => {
+  let { id } = req.params;
 
-})
+  Connection.query(
+    `SELECT name , email , id from users WHERE id = '${id}'`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.json({ message: "internal server error" });
+        return;
+      } else if (result.length > 0) {
+        res.json({ message: "user profile fetched successfully", result });
+      } else {
+        res.json({ message: "user not found" });
+      }
+    }
+  );
+});
 
-app.get('/auth/get-user-profile/:id', (req,res)=>{
-     let {id} = req.params
+app.post("/blogs/add-blog", (req, res) => {
+  let { title, content, userId } = req.body;
 
-     Connection.query(`SELECT name , email , id from users WHERE id = '${id}'`,(err,result)=>{
-        if(err){
-          console.log(err);
-          res.json({message: "internal server error"})
-          return
-        }
-        else if (result.length > 0) {
-           res.json({message: "user profile fetched successfully",result})
-        }
-        else {
-          res.json({message: "user not found"})
-        }
-  } )
+  Connection.query(
+    `INSERT INTO blogs (title , content, userId) values('${title}' , '${content}','${userId}')`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.json({ message: "internal server error" });
+        return;
+      } else if (result.affectedRows > 0) {
+        res.json({ message: "blog added successfully" });
+      } else {
+        res.json({ message: "failed to add blog" });
+      }
+    }
+  );
+});
 
-})
-
-app.post('/blogs/add-blog' , (req,res)=>{
-     let {title , content , userId} = req.body
-
-     Connection.query(`INSERT INTO blogs (title , content, userId) values('${title}' , '${content}','${userId}')`,(err,result)=>{
-          if(err) {
-            console.log(err);
-            res.json({message: "internal server error"})
-            return 
-          }
-          else if(result.affectedRows>0){
-              res.json({message: "blog added successfully"})
-          } else {
-            res.json({message: "failed to add blog"})
-          }
-      })
-})
+app.get("/blogs/get-all-blogs", (req, res) => {
+  Connection.query(`SELECT * from blogs b INNER JOIN users u ON b.userId = u.id`, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.json({ message: "internal server error" });
+      return;
+    } else {
+      res.json({message:"blogs fetched successfully", result});
+    }
+  });
+});
 
 app.listen(port, () =>
   console.log("Example app listening at http://localhost:3000")
