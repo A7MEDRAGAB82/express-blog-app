@@ -149,6 +149,23 @@ app.patch("/blogs/update-blog/:blogId", (req, res) => {
   );
 });
 
+app.delete("/blogs/delete-blog/:blogId", (req, res) => {
+  let { blogId } = req.params;
+  Connection.query(
+    `DELETE from blogs where id = '${blogId}'`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.json({ message: "internal server error" });
+        return;
+      } else if (result.affectedRows > 0) {
+        res.json({ message: " blog deleted successfully" });
+      } else {
+        res.json({ message: "blog delete faild" });
+      }
+    });
+});
+
 app.listen(port, () =>
   console.log("Example app listening at http://localhost:3000")
 );
